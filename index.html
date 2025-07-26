@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drone Dome — Autonomous Wildfire Shield</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent-coral: #ff8a80;
+        --accent-coral-light: #ffab91;
+        --accent-coral-soft: #ffccbc;
+        --accent-glow: rgba(255, 138, 128, 0.25);
+        --soft-bg: #fdfcfc;
+        --soft-cream: #faf9f7;
+        --soft-lavender: #f8f6ff;
+        --soft-mint: #f0f9f4;
+        --card-bg: rgba(255, 255, 255, 0.8);
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --text-primary: #2d3748;
+        --text-secondary: #718096;
+        --text-soft: #a0aec0;
+        --border-soft: rgba(226, 232, 240, 0.8);
+        --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05),
+          0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        --shadow-dreamy: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(
+          135deg,
+          var(--soft-bg) 0%,
+          var(--soft-cream) 50%,
+          var(--soft-lavender) 100%
+        );
+        color: var(--text-primary);
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        font-weight: 400;
+      }
+
+      img,
+      video {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 20px;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* --- Navigation --- */
+      .main-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        padding: 1.5rem 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .main-nav.scrolled {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        border-bottom: 1px solid var(--border-soft);
+        padding: 1rem 0;
+      }
+
+      .nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-logo a {
+        font-family: "Playfair Display", serif;
+        font-weight: 600;
+        font-size: 1.4rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.3s ease;
+      }
+
+      .nav-logo a::before {
+        content: "";
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      @media (min-width: 768px) {
+        .nav-links {
+          display: flex;
+          gap: 2.5rem;
+          align-items: center;
+        }
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a:hover {
+        color: var(--accent-coral);
+        transform: translateY(-1px);
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-coral),
+          var(--accent-coral-light)
+        );
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+        border-radius: 2px;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      /* --- Buttons --- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 2rem;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--accent-coral),
+          var(--accent-coral-light)
+        );
+        color: white;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-dreamy);
+        background: linear-gradient(
+          135deg,
+          var(--accent-coral-light),
+          var(--accent-coral-soft)
+        );
+      }
+
+      .btn-secondary {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      /* --- Hero Section --- */
+      .hero {
+        position: relative;
+        height: 100vh;
+        min-height: 700px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--text-primary);
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          rgba(248, 246, 255, 0.9) 0%,
+          rgba(250, 249, 247, 0.8) 30%,
+          rgba(240, 249, 244, 0.9) 70%,
+          rgba(253, 252, 252, 0.8) 100%
+        );
+      }
+
+      .hero video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -2;
+        opacity: 0.3;
+        filter: blur(1px);
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            circle at 20% 30%,
+            rgba(255, 138, 128, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 70%,
+            rgba(255, 171, 145, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 80%,
+            rgba(255, 204, 188, 0.06) 0%,
+            transparent 50%
+          );
+        z-index: -1;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        padding: 2rem;
+      }
+
+      .hero h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(3rem, 6vw, 5rem);
+        font-weight: 500;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
+      }
+
+      .hero h1 span {
+        background: linear-gradient(
+          135deg,
+          var(--accent-coral),
+          var(--accent-coral-light),
+          var(--accent-coral-soft)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+      }
+
+      .hero h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-coral), transparent);
+        border-radius: 2px;
+        opacity: 0.6;
+      }
+
+      .hero p {
+        margin: 2rem auto;
+        font-size: clamp(1.1rem, 2vw, 1.25rem);
+        max-width: 650px;
+        color: var(--text-secondary);
+        font-weight: 400;
+        line-height: 1.8;
+      }
+
+      .hero .cta-buttons {
+        margin-top: 3rem;
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      /* --- General Section Styling --- */
+      section {
+        padding: 8rem 0;
+        position: relative;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 5rem;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .section-header .tagline {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        color: var(--accent-coral);
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 0.5rem 1.5rem;
+        background: rgba(255, 138, 128, 0.1);
+        border-radius: 50px;
+        border: 1px solid rgba(255, 138, 128, 0.2);
+      }
+
+      .section-header .section-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.5rem, 4vw, 3.5rem);
+        font-weight: 500;
+        line-height: 1.3;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .section-header .section-sub {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.8;
+        font-weight: 400;
+      }
+
+      /* --- Stats Section --- */
+      #problem {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.9) 0%,
+          rgba(248, 246, 255, 0.7) 50%,
+          rgba(255, 255, 255, 0.9) 100%
+        );
+        backdrop-filter: blur(20px);
+        position: relative;
+      }
+
+      #problem::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            rgba(255, 138, 128, 0.05) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(255, 171, 145, 0.05) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+      }
+
+      .stats-grid {
+        display: grid;
+        gap: 3rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        text-align: center;
+        position: relative;
+      }
+
+      .stat-item {
+        padding: 3rem 2rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 138, 128, 0.1),
+          transparent
+        );
+        transition: left 0.8s ease;
+      }
+
+      .stat-item:hover::before {
+        left: 100%;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-dreamy);
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .stat-item .value {
+        font-family: "Playfair Display", serif;
+        font-size: 4rem;
+        font-weight: 600;
+        background: linear-gradient(
+          135deg,
+          var(--accent-coral),
+          var(--accent-coral-light)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        line-height: 1.1;
+      }
+
+      .stat-item .label {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+
+      /* --- Features Section --- */
+      #how {
+        background: linear-gradient(
+          135deg,
+          var(--soft-mint) 0%,
+          var(--soft-cream) 50%,
+          var(--soft-lavender) 100%
+        );
+        position: relative;
+      }
+
+      #how::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+            circle at 30% 40%,
+            rgba(255, 138, 128, 0.03) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            circle at 70% 60%,
+            rgba(255, 171, 145, 0.03) 0%,
+            transparent 70%
+          );
+        pointer-events: none;
+      }
+
+      .features-grid {
+        display: grid;
+        gap: 3rem;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        position: relative;
+      }
+
+      .feature-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-coral),
+          var(--accent-coral-light),
+          var(--accent-coral-soft)
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .feature-card:hover::before {
+        opacity: 1;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-12px);
+        box-shadow: var(--shadow-dreamy);
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .feature-card img {
+        height: 250px;
+        width: 100%;
+        object-fit: contain;
+        border-radius: 20px 20px 0 0;
+        transition: transform 0.4s ease;
+      }
+
+      .feature-card:hover img {
+        transform: scale(1.05);
+      }
+
+      .feature-card .content {
+        padding: 2.5rem;
+      }
+
+      .feature-card .icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(
+          135deg,
+          var(--accent-coral),
+          var(--accent-coral-light)
+        );
+        color: white;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 20px rgba(255, 138, 128, 0.3);
+        transition: transform 0.3s ease;
+      }
+
+      .feature-card:hover .icon {
+        transform: rotate(10deg) scale(1.1);
+      }
+
+      .feature-card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        line-height: 1.4;
+      }
+
+      .feature-card p {
+        color: var(--text-secondary);
+        line-height: 1.7;
+        font-size: 1rem;
+      }
+
+      /* --- Timeline Section --- */
+      .split-section {
+        background: linear-gradient(
+          135deg,
+          rgba(45, 55, 72, 0.95) 0%,
+          rgba(74, 85, 104, 0.9) 100%
+        );
+        color: white;
+        padding: 8rem 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .split-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 20% 30%,
+            rgba(255, 138, 128, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 70%,
+            rgba(255, 171, 145, 0.08) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+      }
+
+      .split-content {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 5rem;
+        align-items: center;
+      }
+
+      @media (min-width: 992px) {
+        .split-content {
+          grid-template-columns: 1fr 1.3fr;
+          gap: 6rem;
+        }
+      }
+
+      .split-section .section-header {
+        text-align: left;
+        margin: 0;
+      }
+
+      .split-section .section-header .section-title,
+      .split-section .section-header .tagline {
+        color: white;
+      }
+
+      .split-section .section-header .tagline {
+        background: rgba(255, 138, 128, 0.2);
+        border-color: rgba(255, 138, 128, 0.3);
+      }
+
+      .split-section .section-header .section-sub {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 2rem 0 0;
+        max-width: 500px;
+      }
+
+      .timeline-wrapper {
+        position: relative;
+        padding-left: 50px;
+      }
+
+      .timeline-wrapper::before {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(
+          180deg,
+          var(--accent-coral),
+          var(--accent-coral-light)
+        );
+        border-radius: 2px;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 4rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .timeline-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateX(10px);
+      }
+
+      .timeline-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .timeline-marker {
+        position: absolute;
+        left: -65px;
+        top: 25px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--accent-coral),
+          var(--accent-coral-light)
+        );
+        border: 4px solid rgba(45, 55, 72, 0.9);
+        box-shadow: 0 0 20px rgba(255, 138, 128, 0.4);
+        z-index: 2;
+        transition: transform 0.3s ease;
+      }
+
+      .timeline-item:hover .timeline-marker {
+        transform: scale(1.2);
+      }
+
+      .timeline-content .phase {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--accent-coral-light);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.5rem;
+      }
+
+      .timeline-content h4 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        color: white;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+      }
+
+      .timeline-content p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.7;
+      }
+
+      /* --- Contact Section --- */
+      #contact {
+        background: linear-gradient(
+          135deg,
+          var(--soft-bg) 0%,
+          var(--soft-lavender) 50%,
+          var(--soft-mint) 100%
+        );
+        position: relative;
+      }
+
+      #contact::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            rgba(255, 138, 128, 0.05) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(255, 171, 145, 0.05) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+      }
+
+      .contact-form-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .contact-form {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        padding: 4rem;
+        border-radius: 40px;
+        box-shadow: var(--shadow-dreamy);
+        display: grid;
+        gap: 2rem;
+        border: 1px solid var(--border-soft);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .contact-form::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-coral),
+          var(--accent-coral-light),
+          var(--accent-coral-soft)
+        );
+        border-radius: 40px 40px 0 0;
+      }
+
+      .contact-form .grid-2 {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 768px) {
+        .contact-form .grid-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .contact-form label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        display: block;
+      }
+
+      .contact-form input,
+      .contact-form textarea {
+        display: block;
+        width: 100%;
+        margin-top: 0.8rem;
+        padding: 1.2rem 1.5rem;
+        border-radius: 20px;
+        border: 2px solid var(--border-soft);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        font-family: inherit;
+      }
+
+      .contact-form input:focus,
+      .contact-form textarea:focus {
+        outline: none;
+        border-color: var(--accent-coral);
+        box-shadow: 0 0 0 4px rgba(255, 138, 128, 0.15);
+        background: white;
+        transform: translateY(-2px);
+      }
+
+      .contact-form button {
+        border: none;
+        justify-self: start;
+        margin-top: 1rem;
+      }
+
+      /* --- Footer --- */
+      footer {
+        background: linear-gradient(
+          135deg,
+          rgba(45, 55, 72, 0.98) 0%,
+          rgba(74, 85, 104, 0.95) 100%
+        );
+        color: rgba(255, 255, 255, 0.8);
+        padding: 6rem 0 3rem;
+        position: relative;
+      }
+
+      footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+            circle at 30% 30%,
+            rgba(255, 138, 128, 0.05) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            circle at 70% 70%,
+            rgba(255, 171, 145, 0.05) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+      }
+
+      .footer-grid {
+        display: grid;
+        gap: 4rem;
+        grid-template-columns: repeat(2, 1fr);
+        margin-bottom: 5rem;
+        position: relative;
+      }
+
+      @media (min-width: 768px) {
+        .footer-grid {
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+        }
+      }
+
+      footer h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: white;
+        margin-bottom: 2rem;
+      }
+
+      footer .logo-col .nav-logo a {
+        font-size: 1.6rem;
+        color: white;
+      }
+
+      footer .logo-col p {
+        margin-top: 1.5rem;
+        max-width: 280px;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      footer nav a {
+        display: block;
+        margin-bottom: 1.2rem;
+        transition: all 0.3s ease;
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.3rem 0;
+      }
+
+      footer nav a:hover {
+        color: var(--accent-coral-light);
+        transform: translateX(5px);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.7);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .social-links a:hover {
+        background: var(--accent-coral);
+        color: white;
+        transform: translateY(-3px) rotate(10deg);
+        box-shadow: 0 8px 20px rgba(255, 138, 128, 0.4);
+      }
+
+      .copyright {
+        text-align: center;
+        padding-top: 3rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* --- Animation --- */
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .stats-grid .stat-item,
+      .features-grid .feature-card {
+        transition-delay: var(--delay);
+      }
+
+      /* --- Apple-style Scroll Sections --- */
+      .scroll-section {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: var(--soft-bg);
+      }
+
+      .scroll-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 800px;
+        padding: 2rem;
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .scroll-media {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .scroll-media img,
+      .scroll-media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0;
+        opacity: 0.3;
+        filter: blur(2px);
+      }
+
+      .scroll-section.active .scroll-media img,
+      .scroll-section.active .scroll-media video {
+        opacity: 0.6;
+        filter: blur(0px);
+        transform: scale(1.05);
+      }
+
+      .scroll-section.active .scroll-content {
+        transform: translateY(-20px);
+      }
+
+      /* --- Media Gallery --- */
+      .media-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 4rem 0;
+      }
+
+      .media-item {
+        position: relative;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+      }
+
+      .media-item:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: var(--shadow-dreamy);
+      }
+
+      .media-item img,
+      .media-item video {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 20px 20px 0 0;
+        transition: transform 0.4s ease;
+      }
+
+      .media-item:hover img,
+      .media-item:hover video {
+        transform: scale(1.1);
+      }
+
+      .media-caption {
+        padding: 1.5rem;
+        text-align: center;
+      }
+
+      .media-caption h4 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .media-caption p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      /* --- Parallax Image Sections --- */
+      .parallax-section {
+        height: 70vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin: 6rem 0;
+      }
+
+      .parallax-bg {
+        position: absolute;
+        top: -20%;
+        left: 0;
+        width: 100%;
+        height: 120%;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        transition: transform 0.1s ease-out;
+      }
+
+      .parallax-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.8) 0%,
+          rgba(248, 246, 255, 0.6) 50%,
+          rgba(255, 255, 255, 0.8) 100%
+        );
+        backdrop-filter: blur(1px);
+      }
+
+      .parallax-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 700px;
+        padding: 3rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        box-shadow: var(--shadow-dreamy);
+        border: 1px solid var(--border-soft);
+      }
+
+      /* --- Video Showcase --- */
+      .video-showcase {
+        position: relative;
+        margin: 6rem 0;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: var(--shadow-dreamy);
+      }
+
+      .video-showcase video {
+        width: 100%;
+        height: 60vh;
+        object-fit: cover;
+        border-radius: 30px;
+      }
+
+      .video-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          45deg,
+          rgba(255, 138, 128, 0.1) 0%,
+          transparent 50%,
+          rgba(255, 171, 145, 0.1) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .video-showcase:hover .video-overlay {
+        opacity: 1;
+      }
+
+      .play-button {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .play-button:hover {
+        transform: scale(1.1);
+        background: white;
+      }
+
+      .play-button::after {
+        content: "";
+        width: 0;
+        height: 0;
+        border-left: 20px solid var(--accent-coral);
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        margin-left: 4px;
+      }
+      .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 138, 128, 0.1),
+          rgba(255, 171, 145, 0.05)
+        );
+        backdrop-filter: blur(20px);
+        pointer-events: none;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-element:nth-child(1) {
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .floating-element:nth-child(2) {
+        width: 60px;
+        height: 60px;
+        top: 20%;
+        right: 15%;
+        animation-delay: 2s;
+      }
+
+      .floating-element:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        bottom: 20%;
+        left: 15%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(180deg);
+        }
+      }
+
+      /* --- Responsive Design --- */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .section-header .section-title {
+          font-size: 2rem;
+        }
+
+        .contact-form {
+          padding: 2.5rem 2rem;
+        }
+
+        .timeline-wrapper {
+          padding-left: 30px;
+        }
+
+        .timeline-marker {
+          left: -45px;
+          width: 20px;
+          height: 20px;
+        }
+
+        .nav-logo a {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="home">
+      <nav class="main-nav">
+        <div class="container nav-content">
+          <div class="nav-logo">
+            <a href="#home">Drone Dome</a>
+          </div>
+          <div class="nav-links">
+            <a href="#problem">The Problem</a>
+            <a href="#how">Our Solution</a>
+            <a href="#timeline">Timeline</a>
+            <!-- <a href="#contact">Contact</a> -->
+          </div>
+          <!-- <a href="#contact" class="btn btn-primary">Schedule a Demo</a> -->
+        </div>
+      </nav>
+
+      <div class="hero">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <!-- <video src="video.mp4" autoplay muted loop playsinline></video> -->
+        <div class="hero-content">
+          <h1 class="reveal">
+            California's Autonomous<br /><span>Wildfire Shield</span>
+          </h1>
+          <p class="reveal" style="transition-delay: 200ms">
+            Advanced AI-powered drone network providing continuous surveillance
+            and rapid suppression capabilities, detecting wildfires in under 3
+            minutes and responding autonomously to prevent escalation.
+          </p>
+          <div class="cta-buttons reveal" style="transition-delay: 400ms">
+            <a href="#how" class="btn btn-primary">Explore Technology</a>
+            <a href="#timeline" class="btn btn-secondary">View Deployment</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="problem">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="tagline">ESCALATING CRISIS</span>
+            <h2 class="section-title">California's Wildfire Challenge</h2>
+            <p class="section-sub">
+              Climate change, prolonged drought, and invasive species accelerate
+              wildfire risk. By 2100, California's burned area could increase by
+              80%, with incidence up by 50%. Current detection and response
+              systems are insufficient for the scale of the challenge.
+            </p>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item reveal" style="--delay: 0ms">
+              <div class="value">1.05M</div>
+              <div class="label">Acres Burned in 2024</div>
+            </div>
+            <div class="stat-item reveal" style="--delay: 200ms">
+              <div class="value">8,024</div>
+              <div class="label">Wildfires in 2024</div>
+            </div>
+            <div class="stat-item reveal" style="--delay: 400ms">
+              <div class="value">$150B</div>
+              <div class="label">Estimated Damages (Jan 2025)</div>
+            </div>
+            <!-- <div class="stat-item reveal" style="--delay: 600ms">
+              <div class="value">30</div>
+              <div class="label">Fatalities (Jan 2025)</div>
+            </div> -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Video Showcase -->
+      <section style="padding: 4rem 0">
+        <div class="container">
+          <div class="video-showcase reveal">
+            <video src="./video.webm" autoplay muted loop playsinline></video>
+            <div class="video-overlay">
+              <div class="play-button"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="tagline">INTEGRATED SOLUTION</span>
+            <h2 class="section-title">Dual-Layer Autonomous Defense System</h2>
+            <p class="section-sub">
+              Our comprehensive Drone Dome ecosystem combines 200 VTOL
+              surveillance drones with 500 heavy-lift suppression UAVs, creating
+              a continuous wildfire prevention mesh that reduces
+              detection-to-response time from hours to minutes.
+            </p>
+          </div>
+          <div class="features-grid">
+            <article class="feature-card reveal" style="--delay: 0ms">
+              <img
+                src="./image1.png"
+                alt="VTOL surveillance drone with thermal imaging"
+              />
+              <div class="content">
+                <div class="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3.5" />
+                    <path d="M20.4 17.6a9 9 0 1 0-16.8 0" />
+                    <path d="M22 12h-1.5M3.5 12H2M12 3.5V2M12 22v-1.5" />
+                  </svg>
+                </div>
+                <h3>Surveillance Layer</h3>
+                <p>
+                  200 VTOL quadplane drones with thermal IR and RGB cameras,
+                  AI-powered wildfire detection, 150-mile range, covering ~4,000
+                  acres per trip with 30-minute continuous revisit capability
+                  across California's 100M forested acres.
+                </p>
+              </div>
+            </article>
+
+            <article class="feature-card reveal" style="--delay: 200ms">
+              <img
+                src="./image2.png"
+                alt="Heavy-lift suppression drone with water payload"
+              />
+              <div class="content">
+                <div class="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"
+                    />
+                  </svg>
+                </div>
+                <h3>Suppression Layer</h3>
+                <p>
+                  500 heavy VTOL UAVs carrying 100-200L payloads, capable of
+                  suppressing 0.1-0.2 acre incipient fires. Coordinated
+                  autonomous response with 5-8 minute turnaround time,
+                  preventing escalation of ~70% of small ignitions.
+                </p>
+              </div>
+            </article>
+
+            <article class="feature-card reveal" style="--delay: 400ms">
+              <img
+                src="./image3.png"
+                alt="Solar-powered drone station network"
+              />
+              <div class="content">
+                <div class="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M10 21.35A15.44 15.44 0 0 1 7.5 18 4 4 0 0 1 11 14.5a4.14 4.14 0 0 1 4 0 4 4 0 0 1 3.5 3.5 15.44 15.44 0 0 1-2.5 3.35"
+                    />
+                    <path d="M8 14.5c0-2.5 2-5 4-5s4 2.5 4 5" />
+                    <path d="M12 5.5c-3.5 0-6 2.5-6 6" />
+                    <path d="M18 11.5c0-3.5-2.5-6-6-6" />
+                  </svg>
+                </div>
+                <h3>Solar Station Network</h3>
+                <p>
+                  280 strategically placed solar-powered charging stations (30
+                  surveillance + 250 suppression) across California, providing
+                  autonomous operation with minimal human oversight and optimal
+                  coverage every ~50 miles.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="split-section reveal" id="timeline">
+        <div class="container split-content">
+          <div class="section-header">
+            <span class="tagline">DEPLOYMENT ROADMAP</span>
+            <h2 class="section-title">Phased Implementation Strategy</h2>
+            <p class="section-sub">
+              Strategic rollout plan designed to validate technology, scale
+              operations, and achieve full statewide coverage while integrating
+              with existing Cal Fire and FAA systems.
+            </p>
+          </div>
+          <div class="timeline-wrapper">
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <span class="phase">Phase 1: Year 0-2</span>
+                <h4>Pilot Program</h4>
+                <p>
+                  Deploy and test 10 surveillance drones + 10 suppression drones
+                  + 5 charging stations in one high-risk county (Butte or San
+                  Bernardino). Validate AI detection algorithms and autonomous
+                  suppression capabilities.
+                </p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <span class="phase">Phase 2: Year 2-4</span>
+                <h4>Regional Scale-Up</h4>
+                <p>
+                  Expand to 50 surveillance drones + 25 suppression UAVs across
+                  3 high-risk counties. Secure FAA waivers for BVLOS operations
+                  and integrate with existing emergency response systems.
+                </p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <span class="phase">Phase 3: Year 4-5</span>
+                <h4>Statewide Deployment</h4>
+                <p>
+                  Complete rollout of all 200 surveillance + 500 suppression
+                  UAVs across California. Full integration with Cal Fire
+                  dispatch systems and real-time coordination with manned
+                  aircraft operations.
+                </p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <span class="phase">Phase 4: Year 5+</span>
+                <h4>Operational Excellence</h4>
+                <p>
+                  Achieve full autonomous wildfire shield capability, preventing
+                  2,000-4,000 small fires annually from becoming major
+                  wildfires, potentially saving $5-10B in avoided damages per
+                  year.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- <section id="contact">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="tagline">PARTNERSHIP OPPORTUNITY</span>
+            <h2 class="section-title">Deploy the Future of Fire Protection</h2>
+            <p class="section-sub">
+              With total initial investment of $88M and annual operations of
+              $5M, the Drone Dome system offers unprecedented ROI by preventing
+              even 1-2% of California's annual wildfire losses. Contact us to
+              discuss implementation in your region.
+            </p>
+          </div>
+          <div class="contact-form-wrapper reveal">
+            <form class="contact-form">
+              <div class="grid-2">
+                <label
+                  >First Name<input
+                    type="text"
+                    required
+                    placeholder="Your first name"
+                /></label>
+                <label
+                  >Last Name<input
+                    type="text"
+                    required
+                    placeholder="Your last name"
+                /></label>
+              </div>
+              <label
+                >Organization / Agency<input
+                  type="text"
+                  required
+                  placeholder="Your organization"
+              /></label>
+              <label
+                >Work Email<input
+                  type="email"
+                  required
+                  placeholder="your.email@example.com"
+              /></label>
+              <label
+                >Project Details<textarea
+                  rows="4"
+                  placeholder="Tell us about your wildfire protection needs, coverage area, and timeline for potential deployment..."
+                ></textarea>
+              </label>
+              <button type="submit" class="btn btn-primary">
+                Request Technical Briefing
+              </button>
+            </form>
+          </div>
+        </div>
+      </section> -->
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="logo-col">
+            <div class="nav-logo">
+              <a href="#home">Drone Dome</a>
+            </div>
+            <p>
+              Advanced autonomous wildfire detection and suppression technology,
+              providing comprehensive protection for California's communities
+              and landscapes through AI-powered drone networks.
+            </p>
+            <!-- <div class="social-links">
+              <a href="#" aria-label="Connect on LinkedIn">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+                  />
+                </svg>
+              </a>
+              <a href="#" aria-label="Follow on Twitter">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-.139 9.237c.209 4.617-3.234 9.765-9.33 9.765-1.854 0-3.579-.543-5.032-1.475 1.742.205 3.48-.278 4.86-1.359-1.437-.027-2.649-.976-3.066-2.28.515.098.991.062 1.468-.06-1.511-.308-2.64-1.64-2.64-3.25 0-.014 0-.028.002-.042.448.249.96.399 1.485.411-1.461-.977-1.898-2.886-1.04-4.354 1.624 1.986 4.028 3.293 6.663 3.385-.225-1.227.27-2.507 1.348-3.231 1.409-.979 3.298-.678 4.274.819.96-.189 1.858-.541 2.659-1.013-.314 1.003-1.001 1.838-1.892 2.371.84-.092 1.649-.324 2.396-.658-.56 1.058-1.263 1.944-2.131 2.62z"
+                  />
+                </svg>
+              </a>
+            </div> -->
+          </div>
+          <nav>
+            <h3>Technology</h3>
+            <a href="#how">Surveillance Layer</a>
+            <a href="#how">Suppression Layer</a>
+            <a href="#timeline">Deployment Plan</a>
+          </nav>
+          <!-- <nav>
+            <h3>Resources</h3>
+            <a href="#">Technical Specs</a>
+            <a href="#">Case Studies</a>
+            <a href="#">White Paper</a>
+          </nav> -->
+          <!-- <nav>
+            <h3>Company</h3>
+            <a href="#">About Us</a>
+            <a href="#">Team</a>
+            <a href="#">Careers</a>
+          </nav> -->
+        </div>
+        <p class="copyright">
+          © 2025 Drone Dome. Advanced wildfire protection technology.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Smooth scroll reveal animation with enhanced easing
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("active");
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      );
+
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      // Enhanced sticky nav with smoother transitions
+      const nav = document.querySelector(".main-nav");
+      let lastScrollY = window.scrollY;
+
+      window.addEventListener("scroll", () => {
+        const currentScrollY = window.scrollY;
+
+        if (currentScrollY > 100) {
+          nav.classList.add("scrolled");
+        } else {
+          nav.classList.remove("scrolled");
+        }
+
+        lastScrollY = currentScrollY;
+      });
+
+      // Parallax effect for floating elements
+      window.addEventListener("scroll", () => {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * -0.5;
+
+        document
+          .querySelectorAll(".floating-element")
+          .forEach((element, index) => {
+            const speed = (index + 1) * 0.2;
+            element.style.transform = `translateY(${rate * speed}px) rotate(${
+              scrolled * 0.1
+            }deg)`;
+          });
+      });
+
+      // Video controls for video showcase
+      const videoShowcases = document.querySelectorAll(".video-showcase");
+      videoShowcases.forEach((showcase) => {
+        const video = showcase.querySelector("video");
+        const playButton = showcase.querySelector(".play-button");
+
+        if (playButton) {
+          playButton.addEventListener("click", () => {
+            if (video.paused) {
+              video.play();
+              playButton.style.opacity = "0";
+            } else {
+              video.pause();
+              playButton.style.opacity = "1";
+            }
+          });
+        }
+      });
+
+      // Enhanced form interaction
+      const formInputs = document.querySelectorAll(
+        ".contact-form input, .contact-form textarea"
+      );
+      formInputs.forEach((input) => {
+        input.addEventListener("focus", function () {
+          this.parentNode.style.transform = "translateY(-2px)";
+        });
+
+        input.addEventListener("blur", function () {
+          this.parentNode.style.transform = "translateY(0)";
+        });
+      });
+
+      // Loading animation
+      window.addEventListener("load", () => {
+        document.body.style.opacity = "0";
+        document.body.style.transition = "opacity 0.8s ease";
+        setTimeout(() => {
+          document.body.style.opacity = "1";
+        }, 100);
+      });
+    </script>
+  </body>
+</html>

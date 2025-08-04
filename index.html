@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Drone Dome — Autonomous Wildfire Shield</title>
+    <title>Alien Robotics - Drone Dome</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
       rel="stylesheet"
@@ -35,6 +35,25 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+      }
+
+      .logo-mark {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+      }
+      .logo-text .brand-line1 {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        display: block;
+        line-height: 1;
+      }
+      .logo-text .brand-line2 {
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.35em;
+        display: block;
       }
 
       html {
@@ -99,6 +118,11 @@
       .nav-content {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-logo {
+        display: flex;
         align-items: center;
       }
 
@@ -1321,7 +1345,12 @@
       <nav class="main-nav">
         <div class="container nav-content">
           <div class="nav-logo">
-            <a href="#home">Drone Dome</a>
+            <img class="logo-mark" src="logo2.webp" alt="Alien Robotics mark" />
+            <div class="logo-text">
+              <span class="brand-line1">ALIEN</span>
+              <span class="brand-line2">ROBOTICS</span>
+            </div>
+            <!-- <a href="#home">Drone Dome</a> -->
           </div>
           <div class="nav-links">
             <a href="#problem">The Problem</a>
@@ -1701,9 +1730,7 @@
             <a href="#">Careers</a>
           </nav> -->
         </div>
-        <p class="copyright">
-          © 2025 Drone Dome. Advanced wildfire protection technology.
-        </p>
+        <p class="copyright">© 2025 Alien Robotics</p>
       </div>
     </footer>
 
